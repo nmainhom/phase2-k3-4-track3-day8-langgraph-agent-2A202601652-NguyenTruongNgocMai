@@ -25,7 +25,41 @@ def render_report(metrics: MetricsReport) -> str:
 
     Return: formatted markdown string
     """
-    raise NotImplementedError("TODO(student): implement report rendering from metrics")
+    rows = "\n".join(
+        f"| {item.scenario_id} | {'Pass' if item.success else 'Fail'} | {item.expected_route} | "
+        f"{item.actual_route or '-'} | {item.nodes_visited} | {item.retry_count} |"
+        for item in metrics.scenario_metrics
+    )
+    return f"""# LangGraph Support Ticket Agent Report
+
+## Metrics summary
+
+| Metric | Value |
+|---|---:|
+| Scenarios | {metrics.total_scenarios} |
+| Success rate | {metrics.success_rate:.1%} |
+| Average nodes visited | {metrics.avg_nodes_visited:.2f} |
+| Total retries | {metrics.total_retries} |
+| Approval interrupts | {metrics.total_interrupts} |
+
+## Scenario results
+
+| Scenario | Result | Expected route | Actual route | Nodes | Retries |
+|---|---|---|---|---:|---:|
+{rows}
+
+## Architecture
+
+The workflow normalizes a ticket, uses structured LLM classification, then routes it to an answer, tool, clarification, or approval path. Tool results are evaluated before a bounded retry loop. Append-only audit events, tool results, and errors make each run observable; a checkpointer can persist state by thread ID.
+
+## Failure analysis
+
+Transient tool errors enter the retry loop and are sent to dead letter once the configured maximum is reached. Risky actions cannot call the tool until the approval node records an approval; rejection requests clarification instead.
+
+## Improvements
+
+Add an interactive approval UI, replace the mock tool with authenticated support APIs, and use an LLM judge with citations to evaluate tool-result quality.
+"""
 
 
 def write_report(metrics: MetricsReport, output_path: str | Path) -> None:

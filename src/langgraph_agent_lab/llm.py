@@ -12,6 +12,23 @@ Usage in nodes:
 from __future__ import annotations
 
 import os
+from pathlib import Path
+
+
+def _load_project_env() -> None:
+    """Load simple KEY=VALUE pairs from the repository .env without a new dependency."""
+    env_path = Path(__file__).resolve().parents[2] / ".env"
+    if not env_path.is_file():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
+_load_project_env()
 
 
 def get_llm(model: str | None = None, temperature: float = 0.0):
@@ -30,7 +47,7 @@ def get_llm(model: str | None = None, temperature: float = 0.0):
         except ImportError as exc:
             raise RuntimeError("Install: pip install langchain-google-genai") from exc
         return ChatGoogleGenerativeAI(
-            model=model or os.getenv("LLM_MODEL", "gemini-2.5-flash"),
+            model=model or os.getenv("LLM_MODEL", "gemini-3.6-flash"),
             google_api_key=os.getenv("GEMINI_API_KEY"),
             temperature=temperature,
         )
