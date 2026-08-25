@@ -51,8 +51,8 @@ def build_graph(checkpointer: Any | None = None):
         evaluate_node,
         finalize_node,
         intake_node,
-        risky_action_node,
         retry_or_fallback_node,
+        risky_action_node,
         tool_node,
     )
     from .routing import (

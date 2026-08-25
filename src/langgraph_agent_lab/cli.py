@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Annotated
 
 import typer
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from .graph import build_graph
 from .metrics import MetricsReport, metric_from_state, summarize_metrics, write_metrics
@@ -36,6 +36,14 @@ def run_scenarios(
         final_state = graph.invoke(state, config=run_config)
         metrics.append(metric_from_state(final_state, scenario.expected_route.value, scenario.requires_approval))
     report = summarize_metrics(metrics)
+    # Checkpoint history confirms that at least one run can be recovered by thread ID.
+    if scenarios:
+        sample_thread = initial_state(scenarios[0])["thread_id"]
+        history_config = {"configurable": {"thread_id": sample_thread}}
+        if checkpointer is not None:
+            report = report.model_copy(
+                update={"resume_success": bool(list(graph.get_state_history(history_config)))}
+            )
     write_metrics(report, output)
     if cfg.get("report_path"):
         write_report(report, cfg["report_path"])

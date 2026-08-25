@@ -4,7 +4,7 @@
   "avg_nodes_visited": 6.428571428571429,
   "total_retries": 3,
   "total_interrupts": 2,
-  "resume_success": false,
+  "resume_success": true,
   "scenario_metrics": [
     {
       "scenario_id": "S01_simple",

@@ -9,6 +9,7 @@
 | Average nodes visited | 6.43 |
 | Total retries | 3 |
 | Approval interrupts | 2 |
+| Checkpoint history available | Yes |
 
 ## Scenario results
 
@@ -25,6 +26,10 @@
 ## Architecture
 
 The workflow normalizes a ticket, uses structured LLM classification, then routes it to an answer, tool, clarification, or approval path. Tool results are evaluated before a bounded retry loop. Append-only audit events, tool results, and errors make each run observable; a checkpointer can persist state by thread ID.
+
+## Persistence and recovery
+
+The scenario runner uses a SQLite checkpointer and a deterministic `thread_id` per scenario. After processing, it reads checkpoint history for a completed thread; history available: yes.
 
 ## Failure analysis
 

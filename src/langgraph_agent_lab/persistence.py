@@ -26,7 +26,7 @@ def build_checkpointer(kind: str = "memory", database_url: str | None = None) ->
         import sqlite3
 
         try:
-            from langgraph.checkpoint.sqlite import SqliteSaver
+            from langgraph.checkpoint.sqlite import SqliteSaver  # type: ignore[import-not-found]
         except ImportError as exc:
             raise RuntimeError("Install the sqlite extra: pip install -e '.[sqlite]'") from exc
         path = database_url or "outputs/langgraph_checkpoints.sqlite"
